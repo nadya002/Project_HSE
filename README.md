@@ -31,6 +31,12 @@ In *testdata* folder you could check some examples of processed audio with this 
 - *testdata/input* contains input files
 - *testdata/output* contains result files with removed noise
 
+## To run example as docker-compose
+
+```shell
+docker-compose up
+```
+
 ## Build
 
 To build everyting as binary files, run:
@@ -57,4 +63,17 @@ make docker.build
 
 ```shell
 ./bin/client
+```
+
+## Для показа на презентации
+
+```shell
+make bin/server && ./bin/server -port=1277 -clients=1
+make bin/client && ./bin/client -port=1277 -input=testdata/input/input0.wav -output=testdata/outputs/out0.wav -denoiser=third-party/rnnoise/examples/rnnoise_demo
+```
+
+```shell
+make bin/server && ./bin/server -port=1323
+make bin/client && ./bin/client -port=1323 -input=testdata/input/input0.wav -output=testdata/outputs/out0.wav -denoiser=third-party/rnnoise/examples/rnnoise_demo
+make bin/client && ./bin/client -port=1323 -input=testdata/input/input1.wav -output=testdata/outputs/out1.wav -denoiser=third-party/rnnoise/examples/rnnoise_demo
 ```

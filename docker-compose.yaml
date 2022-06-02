@@ -1,0 +1,44 @@
+version: "3.9"
+services:
+  server:
+    build:
+      context: .
+      dockerfile: docker/server/Dockerfile
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - CLIENTS=1
+    ports:
+      - 5151:8000
+#
+#  client-1:
+#    build:
+#      context: .
+#      dockerfile: docker/client/Dockerfile
+#    depends_on:
+#      - server
+#    environment:
+#      - HOST=server
+#      - PORT=8000
+#      - INPUT=/testdata/input/input0.wav
+#      - OUTPUT=/testdata/outputs/output0.wav
+#    volumes:
+#      - type: bind
+#        source: ./testdata
+#        target: /testdata
+
+#  client-2:
+#    build:
+#      context: .
+#      dockerfile: docker/client/Dockerfile
+#    depends_on:
+#      - server
+#    environment:
+#      - HOST=server
+#      - PORT=8000
+#      - INPUT=/testdata/input/input1.wav
+#      - OUTPUT=/testdata/outputs/output1.wav
+#    volumes:
+#      - type: bind
+#        source: ./testdata
+#        target: /testdata

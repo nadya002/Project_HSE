@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"github.com/pkg/errors"
+	"hse/pkg/pipe"
 	"hse/pkg/runner"
 	"io"
 	"log"
@@ -15,18 +16,11 @@ type RunnerConfig struct {
 	Host            string
 	Port            int
 	NumberOfClients int
+	FFmpeg          string
 }
 
 type serverRunner struct {
 	RunnerConfig
-}
-
-func pipe() (int, int, error) {
-	var result [2]int
-	if err := syscall.Pipe(result[0:]); err != nil {
-		return 0, 0, err
-	}
-	return result[0], result[1], nil
 }
 
 func (config *serverRunner) Run() error {
@@ -63,22 +57,22 @@ func (config *serverRunner) Run() error {
 	}
 	log.Println("Connections were successfully accepted")
 
-	args := []string{"/usr/local/bin/ffmpeg"}
+	args := []string{config.FFmpeg}
 	fds := make([]uintptr, 0, len(connections))
 	for _, conn := range connections {
 		fds = append(fds, conn.Fd())
-		args = append(args, "-f", "mp3", "-i", fmt.Sprintf("pipe:%v", conn.Fd()))
+		args = append(args, "-f", "wav", "-i", fmt.Sprintf("pipe:%v", conn.Fd()))
 	}
 	args = append(args, "-filter_complex", fmt.Sprintf("amerge=inputs=%v", len(connections)))
 	args = append(args, "-ac", "2")
 
-	r, w, err := pipe()
+	r, w, err := pipe.Pipe()
 	if err != nil {
 		return errors.Wrap(err, "failed to open pipe")
 	}
 
 	fds = append(fds, uintptr(w))
-	args = append(args, "-f", "mp3", fmt.Sprintf("pipe:%v", w))
+	args = append(args, "-f", "wav", fmt.Sprintf("pipe:%v", w))
 
 	if _, err = syscall.ForkExec(args[0], args, &syscall.ProcAttr{
 		Files: append([]uintptr{0, 1, 2}, fds...),
